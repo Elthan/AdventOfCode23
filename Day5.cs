@@ -45,96 +45,42 @@ internal class Day5
                         long.Parse(line.Split(' ')[2])))
                     .ToArray()));
 
-        // For each seed pair
-        // Find the lowest match in overlapping numbers
-        // Convert those numbers according to map, add to sections
-        // Take rest into new section
-        // Rest of numbers are the same
-        // Repeat for next map
-        // Lowest number in results is location
-
         var seedSegments = new HashSet<Seed>(seeds);
         foreach (var map in maps)
         {
-            //Console.WriteLine(map);
             var mappedSeeds = new List<Seed>();
             foreach (var mapping in map.Mappings)
             {
-                //Console.WriteLine($"Mapping: {mapping}");
                 var newSegments = new List<Seed>();
                 foreach (var seed in seedSegments)
                 {
-                    var mapMax = mapping.SourceStart + mapping.RangeLength;
+                    var mappingMax = mapping.SourceStart + mapping.RangeLength;
                     
                     // Contains overlap
-                    if (seed.Max() < mapping.SourceStart && seed.Max() <= mapMax ||
-                        seed.Start < mapMax && seed.Start > mapping.SourceStart)
+                    var overlap = Math.Min(seed.Max(), mappingMax) - Math.Max(seed.Start, mapping.SourceStart);
+                    if (overlap > 0)
                     {
                         var preSeed = seed with { Range = mapping.SourceStart - seed.Start };
-                        var overlapSeed = new Seed(mapping.DestStart, mapping.RangeLength);
-                        var postSeed = new Seed(mapping.SourceStart + mapping.RangeLength, seed.Max() - preSeed.Range - mapping.RangeLength);
+                        var overlapSeed = new Seed(
+                            mapping.DestStart + Math.Max(seed.Start - mapping.SourceStart, 0),
+                            overlap);
+                        var postSeed = new Seed(mappingMax, seed.Max() - mappingMax);
 
                         mappedSeeds.Add(overlapSeed);
-                        newSegments.AddRange(new []{ preSeed, postSeed });
-                        continue;
+                        if (preSeed.Range > 0) newSegments.Add(preSeed);
+                        if (postSeed.Range > 0) newSegments.Add(postSeed);
                     }
                     else
                     {
                         newSegments.Add(seed);
-                        continue;
-                    }
-
-                        //Console.WriteLine($"Seed: {seed}");
-                    // Mapping within seed, create three new seeds (beginning, overlap, end)
-                    if (mapping.SourceStart > seed.Start && mapMax < seed.Max())
-                    {
-                        var preSeed = seed with { Range = mapping.SourceStart - seed.Start };
-                        var overlapSeed = new Seed(mapping.DestStart, mapping.RangeLength);
-                        var postSeed = new Seed(mapping.SourceStart + mapping.RangeLength, seed.Max() - preSeed.Range - mapping.RangeLength);
-                        newSegments.Add(preSeed);
-                        newSegments.Add(postSeed);
-                        newSegments.Add(overlapSeed);
-                        continue;
-                    }
-
-                    var overlap = Math.Min(seed.Max(), mapMax) - Math.Max(seed.Start, mapping.SourceStart);
-                    //if (overlap == 0) Console.WriteLine($"Overlap 0 for {seed} - {mapping}");
-                    //if (overlap > 0) Console.WriteLine($"Overlap for seed {seed} - {overlap}");
-                    var newSeedStart = Math.Max(mapping.DestStart + (seed.Start - mapping.SourceStart), mapping.DestStart);
-                    //if (newSeedStart == 0 && overlap > 0) Console.WriteLine($"New start 0 for {seed} - {mapping}");
-                    if (overlap == seed.Range)
-                    {
-                        //Console.WriteLine($"Full overlap: new start: {newSeedStart} - {seed} - {mapping}");
-                        // Full overlap
-                        newSegments.Add(seed with { Start = newSeedStart });
-                        continue;
-                    }
-                    
-                    if (overlap <= 0)
-                    {
-                        // No overlap, continue as you were
-                        newSegments.Add(seed);
-                    }
-                    else
-                    {
-                        // Partial overlap, split the seed
-                        var overlapSeed = new Seed(newSeedStart, overlap);
-                        // Start at either seed Start if overlap at end or seed start + overlap if overlap at start of seed
-                        var restSeed = new Seed(seed.Start + (seed.Start >= mapping.SourceStart ? overlap : 0), seed.Range - overlap);
-                        newSegments.Add(overlapSeed);
-                        newSegments.Add(restSeed);
                     }
                 }
 
                 seedSegments = new HashSet<Seed>(newSegments);
             }
             seedSegments.UnionWith(mappedSeeds);
-            //Console.WriteLine($"mappedSeeds: {string.Join('\n', mappedSeeds)}");
         }
 
-        Console.WriteLine();
-        Console.WriteLine(string.Join('\n', seedSegments));
-        Console.WriteLine();
         Console.WriteLine(seedSegments.Min(seed => seed.Start));
     }
 
