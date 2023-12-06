@@ -64,8 +64,26 @@ internal class Day5
                 var newSegments = new List<Seed>();
                 foreach (var seed in seedSegments)
                 {
-                    //Console.WriteLine($"Seed: {seed}");
                     var mapMax = mapping.SourceStart + mapping.RangeLength;
+                    
+                    // Contains overlap
+                    if (seed.Max() < mapping.SourceStart && seed.Max() <= mapMax ||
+                        seed.Start < mapMax && seed.Start > mapping.SourceStart)
+                    {
+                        var preSeed = seed with { Range = mapping.SourceStart - seed.Start };
+                        var overlapSeed = new Seed(mapping.DestStart, mapping.RangeLength);
+                        var postSeed = new Seed(mapping.SourceStart + mapping.RangeLength, seed.Max() - preSeed.Range - mapping.RangeLength);
+
+                        newSegments.AddRange(new []{ preSeed, overlapSeed, postSeed });
+                        continue;
+                    }
+                    else
+                    {
+                        newSegments.Add(seed);
+                        continue;
+                    }
+
+                        //Console.WriteLine($"Seed: {seed}");
                     // Mapping within seed, create three new seeds (beginning, overlap, end)
                     if (mapping.SourceStart > seed.Start && mapMax < seed.Max())
                     {
