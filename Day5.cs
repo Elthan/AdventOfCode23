@@ -57,7 +57,7 @@ internal class Day5
         foreach (var map in maps)
         {
             //Console.WriteLine(map);
-            //var mappedSeeds = new List<Seed>();
+            var mappedSeeds = new List<Seed>();
             foreach (var mapping in map.Mappings)
             {
                 //Console.WriteLine($"Mapping: {mapping}");
@@ -74,7 +74,8 @@ internal class Day5
                         var overlapSeed = new Seed(mapping.DestStart, mapping.RangeLength);
                         var postSeed = new Seed(mapping.SourceStart + mapping.RangeLength, seed.Max() - preSeed.Range - mapping.RangeLength);
 
-                        newSegments.AddRange(new []{ preSeed, overlapSeed, postSeed });
+                        mappedSeeds.Add(overlapSeed);
+                        newSegments.AddRange(new []{ preSeed, postSeed });
                         continue;
                     }
                     else
@@ -127,7 +128,7 @@ internal class Day5
 
                 seedSegments = new HashSet<Seed>(newSegments);
             }
-            //seedSegments.UnionWith(mappedSeeds);
+            seedSegments.UnionWith(mappedSeeds);
             //Console.WriteLine($"mappedSeeds: {string.Join('\n', mappedSeeds)}");
         }
 
