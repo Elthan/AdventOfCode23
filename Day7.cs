@@ -1,4 +1,4 @@
-namespace Temporalis;
+namespace AdventOfCode;
 
 internal class Day7
 {
