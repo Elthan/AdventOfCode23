@@ -1,4 +1,6 @@
-﻿internal class Day10
+﻿namespace AdventOfCode;
+
+internal class Day10
 {
     public static void Part1()
     {
@@ -30,7 +32,35 @@
         Console.WriteLine((steps + 1) / 2);
     }
 
-    public static void Part2() { }
+    public static void Part2()
+    {
+        var board = File.ReadLines("input_day10.txt").Select(line => line.ToArray()).ToArray();
+
+        var startingPos = (0, 0);
+        for (var row = 0; row < board.Length; row++)
+        {
+            for (var col = 0; col < board[row].Length; col++)
+            {
+                if (board[row][col] == 'S')
+                {
+                    startingPos = (row, col);
+                }
+            }
+        }
+
+        var tempPipe = GoToFirstPipe((startingPos.Item1, startingPos.Item2), board);
+        var prevPipe = startingPos;
+        var pipesInLoop = new List<(int, int)>();
+        do
+        {
+            var nextPipe = GoToNextPipe(board[tempPipe.Item1][tempPipe.Item2], prevPipe, tempPipe);
+            pipesInLoop.Add(nextPipe);
+            prevPipe = tempPipe;
+            tempPipe = nextPipe;
+        } while (board[tempPipe.Item1][tempPipe.Item2] != 'S');
+
+        Console.WriteLine(string.Join(", ", pipesInLoop));
+    }
 
     private static (int, int) GoToFirstPipe((int, int) curPos, char[][] board)
     {
