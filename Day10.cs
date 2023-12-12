@@ -91,7 +91,7 @@ internal class Day10
     }
 }
 
-public static class Extensions
+public static class Day10Extensions
 {
     public static char? GetValueAt(this char[][] board, int row, int col)
     {
