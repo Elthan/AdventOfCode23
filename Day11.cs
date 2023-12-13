@@ -28,24 +28,32 @@ internal class Day11
     {
         var lines = MillionMultiplyLines(File.ReadLines("input_day11.txt"));
         var flipped = MillionMultiplyLines(FlipArray(lines).Select(line => new string(line)));
-        var horizontals = flipped[0].Count(c => c is '-');
         var space = FlipArray(flipped);
 
-        var verticals = space[0].Count(c => c is '-');
-        var galaxy = new List<(int, int)>();
+        var galaxy = new List<(long, long)>();
         for (var i = 0; i < space.Length; i++)
         {
             for (var j = 0; j < space[i].Length; j++)
             {
-                Console.Write(space[i][j]);
                 if (space[i][j] != '#') continue;
                 galaxy.Add((i, j));
             }
-            Console.WriteLine();
         }
 
         var result = galaxy.Combinations((galaxyA, galaxyB) =>
-            Math.Abs(galaxyB.Item1 - galaxyA.Item1) + Math.Abs(galaxyB.Item2 - galaxyA.Item2));
+        {
+            var expanded = 0;
+            var minX = Math.Min(galaxyA.Item1, galaxyB.Item1);
+            var minY = Math.Min(galaxyA.Item2, galaxyB.Item2);
+            var maxX = Math.Max(galaxyA.Item1, galaxyB.Item1);
+            var maxY = Math.Max(galaxyA.Item2, galaxyB.Item2);
+            for (var i = minX; i < maxX; i++) if (space[i][minY] is '-') expanded++;
+            for (var i = minY; i < maxY; i++) if (space[minX][i] is '-') expanded++;
+
+            return Math.Abs(galaxyB.Item1 - galaxyA.Item1)
+                 + Math.Abs(galaxyB.Item2 - galaxyA.Item2)
+                 + expanded * 999999;
+        });
 
         Console.WriteLine(result.Sum());
     }
