@@ -108,18 +108,3 @@ internal class Day10
         };
     }
 }
-
-public static class Day10Extensions
-{
-    public static char? GetValueAt(this char[][] board, int row, int col)
-    {
-        try
-        {
-            return board[row][col];
-        }
-        catch
-        {
-            return null;
-        }
-    }
-}
