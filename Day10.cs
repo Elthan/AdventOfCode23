@@ -50,7 +50,7 @@ internal class Day10
 
         var tempPipe = GoToFirstPipe((startingPos.Item1, startingPos.Item2), board);
         var prevPipe = startingPos;
-        var pipesInLoop = new List<(int, int)>();
+        var pipesInLoop = new List<(int, int)> { tempPipe };
         do
         {
             var nextPipe = GoToNextPipe(board[tempPipe.Item1][tempPipe.Item2], prevPipe, tempPipe);
@@ -59,7 +59,25 @@ internal class Day10
             tempPipe = nextPipe;
         } while (board[tempPipe.Item1][tempPipe.Item2] != 'S');
 
-        Console.WriteLine(string.Join(", ", pipesInLoop));
+        var parity = 0;
+        for (var i = 0;i < board.Length; i++)
+        {
+            for (var k = 0; k < board[i].Length; k++)
+            {
+                if (pipesInLoop.Contains((i, k)))
+                {
+                    if (board[i][k] is '|' or 'J' or 'L')
+                    {
+                        parity++;
+                    }
+                    continue;
+                }
+
+                board[i][k] = parity % 2 == 0 ? '0' : 'I';
+            }
+        }
+
+        Console.WriteLine(board.Select(line => line.Count(c => c is 'I')).Sum());
     }
 
     private static (int, int) GoToFirstPipe((int, int) curPos, char[][] board)
